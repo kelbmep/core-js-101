@@ -1,6 +1,6 @@
 /* *********************************************************************************************
  *                                                                                             *
- * Plese read the following tutorial before implementing tasks:                                *
+ * Please read the following tutorial before implementing tasks:                                *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions                     *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function   *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments       *
@@ -23,8 +23,10 @@
  *   getComposition(Math.sin, Math.asin)(x) => Math.sin(Math.asin(x))
  *
  */
-function getComposition(/* f, g */) {
-  throw new Error('Not implemented');
+function getComposition(f, g) {
+  return function fg(...a) {
+    return f(g(...a));
+  };
 }
 
 
@@ -44,8 +46,10 @@ function getComposition(/* f, g */) {
  *   power05(16) => 4
  *
  */
-function getPowerFunction(/* exponent */) {
-  throw new Error('Not implemented');
+function getPowerFunction(exponent) {
+  return function exp(...a) {
+    return a ** exponent;
+  };
 }
 
 
@@ -62,27 +66,49 @@ function getPowerFunction(/* exponent */) {
  *   getPolynom(8)     => y = 8
  *   getPolynom()      => null
  */
-function getPolynom() {
-  throw new Error('Not implemented');
+function getPolynom(...a) {
+  return function polynom(x) {
+    let y;
+    switch (a.length) {
+      case 1:
+        [y] = a;
+        break;
+      case 2:
+        y = x * a[0] + a[1];
+        break;
+      case 3:
+        y = a[0] * (x ** 2) + a[1] * x + a[2];
+        break;
+      default:
+        y = null;
+        break;
+    }
+    return y;
+  };
 }
 
 
 /**
- * Memoizes passed function and returns function
+ * Memorizes passed function and returns function
  * which invoked first time calls the passed function and then always returns cached result.
  *
- * @params {Function} func - function to memoize
- * @return {Function} memoized function
+ * @params {Function} func - function to memorize
+ * @return {Function} memorized function
  *
  * @example
- *   const memoizer = memoize(() => Math.random());
- *   memoizer() => some random number  (first run, evaluates the result of Math.random())
- *   memoizer() => the same random number  (second run, returns the previous cached result)
+ *   const memorizer = memorize(() => Math.random());
+ *   memorizer() => some random number  (first run, evaluates the result of Math.random())
+ *   memorizer() => the same random number  (second run, returns the previous cached result)
  *   ...
- *   memoizer() => the same random number  (next run, returns the previous cached result)
+ *   memorizer() => the same random number  (next run, returns the previous cached result)
  */
-function memoize(/* func */) {
-  throw new Error('Not implemented');
+function memoize(func) {
+  const calls = {};
+  return function mem(...a) {
+    const key = JSON.stringify(a);
+    if (!(key in calls)) calls[key] = func(...a);
+    return calls[key];
+  };
 }
 
 
@@ -101,8 +127,16 @@ function memoize(/* func */) {
  * }, 2);
  * retryer() => 2
  */
-function retry(/* func, attempts */) {
-  throw new Error('Not implemented');
+function retry(func, attempts) {
+  const errors = [];
+  return () => {
+    for (let i = 0; i < attempts; i += 1) {
+      try {
+        return func();
+      } catch (a) { errors.push(a); }
+    }
+    return null;
+  };
 }
 
 
@@ -110,7 +144,7 @@ function retry(/* func, attempts */) {
  * Returns the logging wrapper for the specified method,
  * Logger has to log the start and end of calling the specified function.
  * Logger has to log the arguments of invoked function.
- * The fromat of output log is:
+ * The format of output log is:
  * <function name>(<arg1>, <arg2>,...,<argN>) starts
  * <function name>(<arg1>, <arg2>,...,<argN>) ends
  *
@@ -129,8 +163,14 @@ function retry(/* func, attempts */) {
  * cos(3.141592653589793) ends
  *
  */
-function logger(/* func, logFunc */) {
-  throw new Error('Not implemented');
+function logger(func, logFunc) {
+  return function log(...a) {
+    const args = JSON.stringify(a).slice(1, -1);
+    logFunc(`${func.name}(${args}) starts`);
+    const res = func(...a);
+    logFunc(`${func.name}(${args}) ends`);
+    return res;
+  };
 }
 
 
@@ -147,8 +187,10 @@ function logger(/* func, logFunc */) {
  *   partialUsingArguments(fn, 'a','b','c')('d') => 'abcd'
  *   partialUsingArguments(fn, 'a','b','c','d')() => 'abcd'
  */
-function partialUsingArguments(/* fn, ...args1 */) {
-  throw new Error('Not implemented');
+function partialUsingArguments(fn, ...args1) {
+  return function func(...args) {
+    return fn(...args1, ...args);
+  };
 }
 
 
@@ -169,8 +211,12 @@ function partialUsingArguments(/* fn, ...args1 */) {
  *   getId4() => 7
  *   getId10() => 11
  */
-function getIdGeneratorFunction(/* startFrom */) {
-  throw new Error('Not implemented');
+function getIdGeneratorFunction(startFrom) {
+  let calls = -1;
+  return function id() {
+    calls += 1;
+    return startFrom + calls;
+  };
 }
 
 
